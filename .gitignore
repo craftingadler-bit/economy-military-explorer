@@ -1,0 +1,10 @@
+# local environment
+.venv/
+.ipynb_checkpoints/
+.DS_Store
+__pycache__/
+
+# third-party raw data and files derived from it (download from the sources listed in README.md)
+/Data/
+/Prepared/
+/Prepared_Excel/
