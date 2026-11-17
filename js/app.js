@@ -660,7 +660,7 @@
     <section class="wrap section" id="sources">
       <div class="section-head"><h2>Data sources</h2></div>
       <div class="sources">${C.SOURCES.map(s => `<div><b>${esc(s.name)}</b><span>${esc(s.use)}</span><em>${esc(s.unit)}</em></div>`).join('')}</div>
-      <p class="note">Prepared with <code>Historical_War_Continent_Analysis.ipynb</code>; exported by <code>Website/build_data.py</code> on ${esc(META.built.slice(0, 10))}. <a href="#methods">Methods and live validation</a></p>
+      <p class="note">Prepared with <code>projekt/aufbereitung.py</code>, analysed in <code>Analyse.ipynb</code>; exported by <code>Website/build_data.py</code> on ${esc(META.built.slice(0, 10))}. <a href="#methods">Methods and live validation</a></p>
     </section>`;
     if (!again) enterView();
     setupReveal();
@@ -1873,7 +1873,7 @@
     <section class="wrap section prose">
       <p class="kicker">Methods</p>
       <h1>How the numbers are made</h1>
-      <p class="lead">The data preparation runs in the Jupyter notebook. This site receives the finished samples and recomputes every statistic in the browser with the same formulas.</p>
+      <p class="lead">The data preparation runs in Python (<code>projekt/aufbereitung.py</code>), the analysis in the Jupyter notebook <code>Analyse.ipynb</code>. This site receives the finished samples and recomputes every statistic in the browser with the same formulas.</p>
 
       <h2>Pipeline</h2>
       <ol class="steps">
@@ -1882,7 +1882,7 @@
         <li><b>Variables.</b> Productivity = PWT rgdpo / emp. Military personnel per 1,000 = NMC milper / tpop × 1000. Import HHI = sum of squared partner shares. Mutual import share = mean of both directed import shares. Spending growth from SIPRI uses the exact previous year only.</li>
         <li><b>Quality rules.</b> H2, H3 and H4 keep a country-year only if its observed bilateral imports cover 90–110% of its national imports (for pairs: both countries). H8 also needs ≥ 95% distance coverage of exports.</li>
         <li><b>Context.</b> Continents from CEPII (the Americas split into North incl. Central America/Caribbean, and South). War status from COW Inter-State War Data: a country-year is “at war” if any participation episode covers that year, up to 2007; later years are unknown.</li>
-        <li><b>Export.</b> <code>Website/build_data.py</code> runs the notebook cells and writes the finished samples to <code>Website/data/</code>. Nothing is filtered or added there.</li>
+        <li><b>Export.</b> <code>Website/build_data.py</code> runs the same preparation and writes the finished samples to <code>Website/data/</code>. Nothing is filtered or added there.</li>
       </ol>
 
       <h2>Statistics computed live</h2>

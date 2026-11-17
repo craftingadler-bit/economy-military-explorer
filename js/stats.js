@@ -1,5 +1,5 @@
 /* Statistics engine for the explorer.
- * Mirrors the notebook (Historical_War_Continent_Analysis.ipynb):
+ * Mirrors the Python analysis (projekt/statistik.py):
  *  - Pearson r with the conventional two-sided p (scipy.stats.pearsonr)
  *  - Spearman rho with average ranks for ties (scipy.stats.spearmanr)
  *  - between-entity means / within-entity demeaned correlations
