@@ -1,71 +1,48 @@
-"""Exportiert die Analyse-Stichproben aus Historical_War_Continent_Analysis.ipynb
-für die interaktive Website.
+"""Exportiert die Analyse-Stichproben für die interaktive Website.
 
 Aufruf aus dem Projektordner (dort, wo Data/ liegt):
     .venv/bin/python Website/build_data.py
 
-Das Skript führt die Aufbereitungs- und Kontextzellen des Notebooks unverändert aus
-(Teil A, erweiterte Analyse ohne Grafiken/Regressionen, Kriegs- und Kontinentkontext).
-Es schreibt KEINEN Excel-Bericht und verändert keine Originaldaten. Ergebnis:
-Website/data/*.js mit kompakten Spalten (Base64 typed arrays), die index.html lädt.
+Nutzt Schritt 1 (projekt/aufbereitung.py) und die wenigen Referenztabellen aus
+projekt/zusatzanalysen.py. Schreibt KEINEN Excel-Bericht und verändert keine
+Originaldaten. Ergebnis: Website/data/*.js mit kompakten Spalten (Base64 typed arrays).
 """
 from pathlib import Path
 import base64
-import contextlib
-import io
 import json
 import math
-import os
 import sys
-import time
 
 import numpy as np
+import pandas as pd
 
 WEBSITE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = WEBSITE_DIR.parent
-NOTEBOOK = PROJECT_DIR / 'Historical_War_Continent_Analysis.ipynb'
 OUT_DIR = WEBSITE_DIR / 'data'
+sys.path.insert(0, str(PROJECT_DIR))
 
-# Zellen, die ausgeführt werden. Grafiken (38), Regressionen (36), Zusammenfassung (39),
-# Gruppen-/Modell-/Excel-Teile (43 ff.) werden für die Website nicht gebraucht.
-# Jede Zelle wird über einen eindeutigen Textanker geprüft, damit spätere Änderungen
-# am Notebook nicht unbemerkt falsche Zellen ausführen.
-CELLS = [
-    (1, "PROJECT_DIR = Path.cwd()"),
-    (3, "raw = {}"),
-    (5, "def require_unique"),
-    (7, "COW_TO_ISO = {"),
-    (9, "name_candidates = {}"),
-    (11, "wars = raw['wars'].copy()"),
-    (13, "nmc['military_per_1000']"),
-    (15, "base = dyadic_trade.loc"),
-    (17, "dyad_year = base["),
-    (19, "directed_trade = directed_trade.merge("),
-    (21, "audit_rows = []"),
-    (23, "assert len(raw)==10"),
-    (27, "CONFIG = {"),
-    (29, "def r_from_moments"),
-    (30, "def leave_groups"),
-    (32, "time_rows, country_rows"),
-    (34, "trade = datasets['H4'][0].copy()"),
-    (41, "WAR_CONFIG = {"),
-]
+from projekt import aufbereitung, zusatzanalysen  # noqa: E402
+from projekt.einstellungen import HYPOTHESEN, WAR_CONFIG  # noqa: E402
+from projekt.statistik import complete  # noqa: E402
 
 
-def run_notebook():
-    nb = json.loads(NOTEBOOK.read_text(encoding='utf-8'))
-    ns = {'__name__': '__notebook__'}
-    os.chdir(PROJECT_DIR)
-    for index, anchor in CELLS:
-        cell = nb['cells'][index]
-        source = ''.join(cell['source'])
-        if cell['cell_type'] != 'code' or anchor not in source:
-            raise RuntimeError(f'Zelle {index} passt nicht mehr zum Anker {anchor!r}. Bitte CELLS anpassen.')
-        started = time.time()
-        with contextlib.redirect_stdout(io.StringIO()):
-            exec(compile(source, f'<notebook cell {index}>', 'exec'), ns)
-        print(f'  Zelle {index:>2} ausgeführt ({time.time() - started:5.1f}s)')
-    return ns
+def lade_daten():
+    """Schritt 1 ausführen und die Referenzkorrelationen berechnen, die die Website anzeigt."""
+    daten = aufbereitung.erstelle()
+    T = daten.tabellen
+    datasets = {name: (d, HYPOTHESEN[name].x, HYPOTHESEN[name].y, HYPOTHESEN[name].erwartet)
+                for name, d in T['basis'].items()}
+    report_tables = {}
+    zusatzanalysen.korrelationen(datasets, T, report_tables)
+    zusatzanalysen.einfluss_und_bootstrap(datasets, report_tables)
+    zusatzanalysen.zeit_und_ebenen(datasets, T, report_tables)
+    zusatzanalysen.handel_und_nebenfragen(daten, report_tables)
+    all_specs = {name: {'df': d, 'x': HYPOTHESEN[name].x, 'y': HYPOTHESEN[name].y}
+                 for name, d in daten.stichproben.items()}
+    return {'pd': pd, 'all_specs': all_specs, 'war_country_year': T['war_country_year'],
+            'state_list': T['state_list'], 'frequency_profile': T['frequency_profile'],
+            **T['frequency_thresholds'], 'WAR_CONFIG': WAR_CONFIG, 'complete': complete,
+            'trade': T['trade'], 'report_tables': report_tables}
 
 
 def b64(array, dtype):
@@ -99,8 +76,8 @@ def write_js(name, payload):
 
 
 def main():
-    print('Notebook-Zellen ausführen …')
-    ns = run_notebook()
+    print('Daten aufbereiten …')
+    ns = lade_daten()
     pd = ns['pd']
     all_specs, war_country_year = ns['all_specs'], ns['war_country_year']
     state_list, frequency_profile = ns['state_list'], ns['frequency_profile']
@@ -219,7 +196,7 @@ def main():
     cols['lang'] = column(extras.comlang_off.fillna(2).astype(int), 'u8')
     write_js('TRADE', {'n': len(trade), 'unit': 'pair', 'cols': cols})
 
-    # ---------- Referenzwerte aus dem Notebook (zur Kontrolle und Anzeige) ----------
+    # ---------- Referenzwerte (zur Kontrolle und Anzeige) ----------
     rt = ns['report_tables']
     reference = {'baseline': {}, 'withinBetween': {}, 'bootstrap': {}}
     for row in rt['Correlations'].to_dict('records'):
@@ -233,7 +210,7 @@ def main():
         reference['bootstrap'][row['hypothesis']] = [num(row['pearson_ci_low']), num(row['pearson_ci_high'])]
     write_js('reference', reference)
 
-    print('\nKontrolle (Notebook-Referenz):')
+    print('\nKontrolle (Referenzwerte):')
     for key, ref in reference['baseline'].items():
         print(f"  {key}: n={ref['n']:,.0f}  r={ref['pearson_r']:+.4f}  rho={ref['spearman_rho']:+.4f}")
 
