@@ -210,7 +210,7 @@
 
   /* The prepared talk: about 10 minutes, focus on H1. Captions are short on purpose. */
   const TOUR = [
-    { view: 'overview', kicker: 'Introduction', text: 'Seven data sources, 1950–2014, four main hypotheses. Every number on this site is recomputed live in the browser.' },
+    { view: 'overview', kicker: 'Introduction', text: 'Eight data sources, 1950–2014, four main hypotheses. Every number on this site is recomputed live in the browser.' },
     { view: 'overview', anchor: 'results', kicker: 'Results at a glance', text: 'n, r and p for all four hypotheses. Two point the opposite way, two are close to zero. H1 is the deep dive.' },
     { view: 'h1', kicker: 'H1 · as tested', text: '7,708 country-years. Expected negative, observed r = +0.24 (weak, positive). Hover the points: the UAE and Iraq sit at the edges.' },
     { view: 'h1-outliers', kicker: 'H1 · influential countries', text: 'The most influential country is the UAE (highlighted): very productive, large army. Without it r falls to +0.16, but stays positive.' },
@@ -284,7 +284,7 @@
       answer: 'Rich countries do not keep fewer soldiers: some of the richest face military threats or live on oil, and both go with large forces. The expected effect appears only inside countries: as a country grows more productive, the share of people in uniform falls.',
       figures: ['h1-paths', 'h1-usa'],
       cards: [
-        { type: 'statistics', title: 'Two questions, two answers', text: 'The pooled r mixes a comparison between countries with changes inside countries. Correlations of group averages can differ in size and even in sign from correlations inside the groups, the classic “ecological correlation” problem {ref:robinson}.', evidence: 'Between country means r = +0.40, within countries r = −0.17.', link: ['h1-within', 'Show the within view'] },
+        { type: 'statistics', title: 'Two questions, two answers', text: 'The pooled r mixes a comparison between countries with changes inside countries. Correlations of group averages can differ in size and even in sign from correlations inside the groups, the classic “ecological correlation” problem {ref:robinson}.', evidence: 'Between country means r = +0.40, within countries r = −0.16.', link: ['h1-within', 'Show the within view'] },
         { type: 'geopolitics', title: 'Rich, but under threat', text: 'States involved in interstate war or rivalry are more likely to keep conscript armies {ref:asal}. That raises personnel per inhabitant regardless of productivity.', evidence: 'Largest forces among above-median productivity countries: {live:h1rich}. {live:h1war}', link: ['h1-between', 'Show country means'] },
         { type: 'research', title: 'Oil money buys armies', text: 'Oil discoveries raise military spending in non-democracies {ref:cotet}. Oil also inflates GDP per worker, so oil states sit far right in the chart and high up at the same time.', evidence: '{live:h1gulf}', link: ['h1-outliers', 'Show the UAE'] },
         { type: 'research', title: 'Machines instead of soldiers', text: 'Economic endowments are reliably associated with how mechanized a military is, that is, how much equipment each soldier works with {ref:sechser}. This is the mechanism H1 assumed. It shows up as change over time inside countries, not as a difference between them.', evidence: 'Inside single countries, log productivity and personnel move in opposite directions: {live:h1paths}. Fixed-effects β = −1.42, p = 0.11 (not significant).', link: ['h1-usa', 'Show the USA alone'] },
