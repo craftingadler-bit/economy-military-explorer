@@ -8,3 +8,7 @@ __pycache__/
 /Data/
 /Prepared/
 /Prepared_Excel/
+
+# personal presentation notes, kept local only
+/Website/Praesentationsleitfaden.md
+/Website/Praesentationsskript.md
